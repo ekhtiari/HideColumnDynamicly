@@ -1,0 +1,46 @@
+[
+  {
+    "History": {
+      "SubTitle1": "D1",
+      "SubTitle2": "D2",
+      "SubTitle3": "D3"
+    },
+    "MainTitle": {
+      "SubTitle1": true,
+      "SubTitle2": "E1"
+    },
+    "ExtraData": {
+      "SubTitle1": "K1",
+      "SubTitle2": "K2",
+      "SubTitle3": "K3",
+      "SubTitle4": "K4"
+    },
+    "MoreInfo": {},
+    "Bid": 12
+  },
+  {
+    "History": {
+      "SubTitle1": "L1",
+      "SubTitle2": "L2",
+      "SubTitle3": "L3",
+      "SubTitle4": "L4",
+      "SubTitle5": "L5"
+    },
+    "MainTitle": {
+      "SubTitle1": false,
+      "SubTitle3": "P2"
+    },
+    "ExtraData": {
+      "SubTitle1": "Q1",
+      "SubTitle2": "Q2"
+    },
+    "MoreInfo": {
+      "Sub1": "Data"
+    },
+    "Bid": 45
+  }
+]
+
+
+
+

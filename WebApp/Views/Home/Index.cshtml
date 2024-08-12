@@ -1,0 +1,293 @@
+﻿@using System.ComponentModel
+@using System.Reflection
+@using System.Linq.Dynamic.Core
+@model List<Main>
+
+@{
+    listHistory = h.GetType().GetProperties();
+    listMainTitle = MainTitle.GetType().GetProperties();
+    listExtraData = ExtraData.GetType().GetProperties();
+    listMoreInfo = MoreInfo.GetType().GetProperties();
+}
+
+
+@functions
+{
+    public int hCount { get; set; } = 0;
+
+    public History h { get; set; } = new();
+    public PropertyInfo[] listHistory { get; set; }
+
+    public MainTitle MainTitle { get; set; } = new();
+    public PropertyInfo[] listMainTitle { get; set; }
+
+    public ExtraData ExtraData { get; set; } = new();
+    public PropertyInfo[] listExtraData { get; set; }
+
+    public MoreInfo MoreInfo { get; set; } = new();
+    public PropertyInfo[] listMoreInfo { get; set; }
+
+
+    private bool CheckVal(string columnname, string t, string category)
+    {
+        IQueryable tempList = Model.AsQueryable();
+
+        switch (t)
+        {
+            case "Boolean":
+            {
+                var result = tempList.Where(category + "." + columnname + "=@0", true).ToDynamicList();
+
+                return result.Any();
+            }
+            case "String":
+            {
+                var result = tempList.Where(category + "." + columnname + "!=null and " + category + "." + columnname + "!=@0", string.Empty).ToDynamicList();
+
+                return result.Any();
+            }
+            default:
+                return false;
+        }
+    }
+
+    private int DataCount(string category)
+    {
+        var hCount = 0;
+        switch (category)
+        {
+            case "history":
+                hCount += listHistory.Count(itemH => CheckVal(itemH.Name, itemH.PropertyType.Name, category));
+                break;
+            case "mainTitle":
+                hCount += listMainTitle.Count(itemH => CheckVal(itemH.Name, itemH.PropertyType.Name, category));
+                break;
+            case "extraData":
+                hCount += listExtraData.Count(itemH => CheckVal(itemH.Name, itemH.PropertyType.Name, category));
+                break;
+            case "moreInfo":
+                hCount += listMoreInfo.Count(itemH => CheckVal(itemH.Name, itemH.PropertyType.Name, category));
+                break;
+            default:
+                break;
+        }
+
+        return hCount;
+    }
+}
+
+@{
+    if (!Model.Any())
+    {
+        <p>Have no Record</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Bid</th>
+                @if (DataCount("history") > 0)
+                {
+                    <th colspan="@DataCount("history")">History</th>
+                }
+                @if (DataCount("mainTitle") > 0)
+                {
+                    <th colspan="@DataCount("mainTitle")">Main Title</th>
+                }
+                @if (DataCount("extraData") > 0)
+                {
+                    <th colspan="@DataCount("extraData")">Extra Data</th>
+                }
+                @if (DataCount("moreInfo") > 0)
+                {
+                    <th colspan="@DataCount("moreInfo")">More Info</th>
+                }
+            </tr>
+            <tr>
+                <td>-</td>
+                @{
+                    foreach (var itemH in listHistory)
+                    {
+                        if (CheckVal(itemH.Name, itemH.PropertyType.Name, "History"))
+                        {
+                            hCount++;
+                            var ItemName = "";
+
+                            var tempD = itemH.GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast
+                                <DisplayNameAttribute>
+                                ().FirstOrDefault();
+                            ItemName = tempD == null ? itemH.Name : tempD.DisplayName;
+
+                            <td>@ItemName</td>
+                        }
+                    }
+
+                    foreach (var itemH in listMainTitle)
+                    {
+                        if (CheckVal(itemH.Name, itemH.PropertyType.Name, "MainTitle"))
+                        {
+                            hCount++;
+                            var ItemName = "";
+
+                            var tempD = itemH.GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast
+                                <DisplayNameAttribute>
+                                ().FirstOrDefault();
+                            ItemName = tempD == null ? itemH.Name : tempD.DisplayName;
+
+                            <td>@ItemName</td>
+                        }
+                    }
+
+                    foreach (var itemH in listExtraData)
+                    {
+                        if (CheckVal(itemH.Name, itemH.PropertyType.Name, "ExtraData"))
+                        {
+                            hCount++;
+                            var ItemName = "";
+
+                            var tempD = itemH.GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast
+                                <DisplayNameAttribute>
+                                ().FirstOrDefault();
+                            ItemName = tempD == null ? itemH.Name : tempD.DisplayName;
+
+                            <td>@ItemName</td>
+                        }
+                    }
+
+                    foreach (var itemH in listMoreInfo)
+                    {
+                        if (CheckVal(itemH.Name, itemH.PropertyType.Name, "MoreInfo"))
+                        {
+                            hCount++;
+                            var ItemName = "";
+
+                            var tempD = itemH.GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast
+                                <DisplayNameAttribute>
+                                ().FirstOrDefault();
+                            ItemName = tempD == null ? itemH.Name : tempD.DisplayName;
+
+                            <td>@ItemName</td>
+                        }
+                    }
+                }
+            </tr>
+            </thead>
+            <tbody>
+            @{
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Bid</td>
+                        @foreach (var itemH in listHistory)
+                        {
+                            if (CheckVal(itemH.Name, itemH.PropertyType.Name, "History"))
+                            {
+                                <td>
+                                    @{
+                                        var outp = itemH.GetValue(item.History, null);
+                                        if (outp != null && outp.ToString() != "False")
+                                        {
+                                            if (outp.ToString() == "True")
+                                            {
+                                                <p>✓</p>
+                                            }
+                                            else
+                                            {
+                                                <p>@outp</p>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <p></p>
+                                        }
+                                    }
+                                </td>
+                            }
+                        }
+                        @foreach (var itemH in listMainTitle)
+                        {
+                            if (CheckVal(itemH.Name, itemH.PropertyType.Name, "MainTitle"))
+                            {
+                                <td>
+                                    @{
+                                        var outp = itemH.GetValue(item.MainTitle, null);
+                                        if (outp != null && outp.ToString() != "False")
+                                        {
+                                            if (outp.ToString() == "True")
+                                            {
+                                                <p>✓</p>
+                                            }
+                                            else
+                                            {
+                                                <p>@outp</p>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <p></p>
+                                        }
+                                    }
+                                </td>
+                            }
+                        }
+                        @foreach (var itemH in listExtraData)
+                        {
+                            if (CheckVal(itemH.Name, itemH.PropertyType.Name, "ExtraData"))
+                            {
+                                <td>
+                                    @{
+                                        var outp = itemH.GetValue(item.ExtraData, null);
+                                        if (outp != null && outp.ToString() != "False")
+                                        {
+                                            if (outp.ToString() == "True")
+                                            {
+                                                <p>✓</p>
+                                            }
+                                            else
+                                            {
+                                                <p>@outp</p>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <p></p>
+                                        }
+                                    }
+                                </td>
+                            }
+                        }
+                        @foreach (var itemH in listMoreInfo)
+                        {
+                            if (CheckVal(itemH.Name, itemH.PropertyType.Name, "MoreInfo"))
+                            {
+                                <td>
+                                    @{
+                                        var outp = itemH.GetValue(item.MoreInfo, null);
+                                        if (outp != null && outp.ToString() != "False")
+                                        {
+                                            if (outp.ToString() == "True")
+                                            {
+                                                <p>✓</p>
+                                            }
+                                            else
+                                            {
+                                                <p>@outp</p>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <p></p>
+                                        }
+                                    }
+                                </td>
+                            }
+                        }
+
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+    }
+}
