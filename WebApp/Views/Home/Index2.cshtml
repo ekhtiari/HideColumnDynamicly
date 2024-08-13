@@ -1,0 +1,220 @@
+﻿@model List<WebApp.Models.Main>
+
+@{
+    // Define the titles and subtitles as dictionaries for each section
+    var historyTitles = new Dictionary<string, string>
+    {
+        { "SubTitle1", "Sub Title 1" },
+        { "SubTitle2", "Sub Title 2" },
+        { "SubTitle3", "Sub Title 3" },
+        { "SubTitle4", "Sub Title 4" },
+        { "SubTitle5", "Sub Title 5" }
+    };
+    
+    var mainTitleTitles = new Dictionary<string, string>
+    {
+        { "SubTitle1", "Sub Title 1" },
+        { "SubTitle2", "Sub Title 2" },
+        { "SubTitle3", "Sub Title 3" }
+    };
+    
+    var extraDataTitles = new Dictionary<string, string>
+    {
+        { "SubTitle1", "Sub Title 1" },
+        { "SubTitle2", "Sub Title 2" },
+        { "SubTitle3", "Sub Title 3" },
+        { "SubTitle4", "Sub Title 4" },
+        { "SubTitle5", "Sub Title 5" }
+    };
+    
+    var moreInfoTitles = new Dictionary<string, string>
+    {
+        { "Sub1", "Sub 1" }
+    };
+
+    // Function to check if a property has any non-false, non-empty values in the section
+    bool ShouldShowColumn(string section, string subTitle)
+    {
+        return Model.Any(item => 
+            section switch
+            {
+                "History" => item.History != null && 
+                             !(item.History.GetType().GetProperty(subTitle)?.GetValue(item.History)?.Equals(false) ?? true),
+                "MainTitle" => item.MainTitle != null && 
+                              !(item.MainTitle.GetType().GetProperty(subTitle)?.GetValue(item.MainTitle)?.Equals(false) ?? true),
+                "ExtraData" => item.ExtraData != null && 
+                              !(item.ExtraData.GetType().GetProperty(subTitle)?.GetValue(item.ExtraData)?.Equals(false) ?? true),
+                "MoreInfo" => item.MoreInfo != null && 
+                             !(item.MoreInfo.GetType().GetProperty(subTitle)?.GetValue(item.MoreInfo)?.Equals(false) ?? true),
+                _ => false
+            });
+    }
+
+    // Filter the titles based on whether they should be shown
+    var filteredHistoryTitles = historyTitles.Where(t => ShouldShowColumn("History", t.Key)).ToDictionary(k => k.Key, v => v.Value);
+    var filteredMainTitleTitles = mainTitleTitles.Where(t => ShouldShowColumn("MainTitle", t.Key)).ToDictionary(k => k.Key, v => v.Value);
+    var filteredExtraDataTitles = extraDataTitles.Where(t => ShouldShowColumn("ExtraData", t.Key)).ToDictionary(k => k.Key, v => v.Value);
+    var filteredMoreInfoTitles = moreInfoTitles.Where(t => ShouldShowColumn("MoreInfo", t.Key)).ToDictionary(k => k.Key, v => v.Value);
+
+    // Get counts
+    int historyCount = filteredHistoryTitles.Count;
+    int mainTitleCount = filteredMainTitleTitles.Count;
+    int extraDataCount = filteredExtraDataTitles.Count;
+    int moreInfoCount = filteredMoreInfoTitles.Count;
+}
+
+<h2>Visit Records</h2>
+@if (!Model.Any())
+{
+    <p>No Records Found</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Bid</th>
+                @if (historyCount > 0)
+                {
+                    <th colspan="@historyCount">History</th>
+                }
+                @if (mainTitleCount > 0)
+                {
+                    <th colspan="@mainTitleCount">Main Title</th>
+                }
+                @if (extraDataCount > 0)
+                {
+                    <th colspan="@extraDataCount">Extra Data</th>
+                }
+                @if (moreInfoCount > 0)
+                {
+                    <th colspan="@moreInfoCount">More Info</th>
+                }
+            </tr>
+            <tr>
+                <td>-</td>
+                @{
+                    foreach (var title in filteredHistoryTitles.Values)
+                    {
+                        <th>@title</th>
+                    }
+
+                    foreach (var title in filteredMainTitleTitles.Values)
+                    {
+                        <th>@title</th>
+                    }
+
+                    foreach (var title in filteredExtraDataTitles.Values)
+                    {
+                        <th>@title</th>
+                    }
+
+                    foreach (var title in filteredMoreInfoTitles.Values)
+                    {
+                        <th>@title</th>
+                    }
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Bid</td>
+                    @foreach (var key in filteredHistoryTitles.Keys)
+                    {
+                        var value = item.History?.GetType().GetProperty(key)?.GetValue(item.History);
+                        if (value != null)
+                        {
+                            switch (value.ToString())
+                            {
+                                case "True":
+                                    <td>✓</td>
+                                    break;
+                                case "False":
+                                    <td></td>
+                                    break;
+                                default:
+                                    <td>@value</td>
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            <td>@(value ?? string.Empty)</td>
+                        }
+                    }
+                    @foreach (var key in filteredMainTitleTitles.Keys)
+                    {
+                        var value = item.MainTitle?.GetType().GetProperty(key)?.GetValue(item.MainTitle);
+                        if (value != null)
+                        {
+                            switch (value.ToString())
+                            {
+                                case "True":
+                                    <td>✓</td>
+                                    break;
+                                case "False":
+                                    <td></td>
+                                    break;
+                                default:
+                                    <td>@value</td>
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            <td>@(value ?? string.Empty)</td>
+                        }
+                    }
+                    @foreach (var key in filteredExtraDataTitles.Keys)
+                    {
+                        var value = item.ExtraData?.GetType().GetProperty(key)?.GetValue(item.ExtraData);
+                        if (value != null)
+                        {
+                            switch (value.ToString())
+                            {
+                                case "True":
+                                    <td>✓</td>
+                                    break;
+                                case "False":
+                                    <td></td>
+                                    break;
+                                default:
+                                    <td>@value</td>
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            <td>@(value ?? string.Empty)</td>
+                        }
+                    }
+                    @foreach (var key in filteredMoreInfoTitles.Keys)
+                    {
+                        var value = item.MoreInfo?.GetType().GetProperty(key)?.GetValue(item.MoreInfo);
+                        if (value != null)
+                        {
+                            switch (value.ToString())
+                            {
+                                case "True":
+                                    <td>✓</td>
+                                    break;
+                                case "False":
+                                    <td></td>
+                                    break;
+                                default:
+                                    <td>@value</td>
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            <td>@(value ?? string.Empty)</td>
+                        }
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+}

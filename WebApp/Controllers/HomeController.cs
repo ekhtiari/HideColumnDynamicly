@@ -15,6 +15,14 @@ public class HomeController(IWebHostEnvironment environment) : Controller
         return View(result);
     }
 
+    public IActionResult Index2()
+    {
+        var path = Path.Combine(environment.WebRootPath, "data.json");
+        var json = System.IO.File.ReadAllText(path);
+        var result = JsonSerializer.Deserialize<List<Main>>(json);
+        return View(result);
+    }
+
     public IActionResult Privacy()
     {
         return View();
